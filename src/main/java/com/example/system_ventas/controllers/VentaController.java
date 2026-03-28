@@ -1,58 +1,41 @@
+// Archivo: src/main/java/com/example/system_ventas/controllers/VentaController.java
 package com.example.system_ventas.controllers;
 
 import com.example.system_ventas.models.Venta;
-import com.example.system_ventas.services.IVentaService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.system_ventas.services.VentaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-/**
- * El Controlador es el punto de entrada de las peticiones HTTP.
- * 
- * @RestController indica que esta clase manejará peticiones REST (JSON).
- *                 @RequestMapping("/api/productos") define la ruta base.
- */
 @RestController
 @RequestMapping("/api/ventas")
 public class VentaController {
 
-    @Autowired
-    private IVentaService ventaService;
+    private final VentaService service;
 
-    // Obtener todas las Ventas
+    public VentaController(VentaService service) {
+        this.service = service;
+    }
+
     @GetMapping
-    public List<Venta> listar() {
-        return ventaService.listarTodos();
+    public ResponseEntity<List<Venta>> getAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // Obtener una Venta por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<Venta> buscar(@PathVariable Long id) {
-        return ventaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Venta> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // Crear una nueva Venta
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Venta crear(@RequestBody Venta venta) {
-        return ventaService.guardar(venta);
+    public ResponseEntity<Venta> create(@RequestBody Venta venta) {
+        return new ResponseEntity<>(service.save(venta), HttpStatus.CREATED);
     }
 
-    // Actualizar un producto
-    @PutMapping("/{id}")
-    public ResponseEntity<Venta> actualizar(@PathVariable Long id, @RequestBody Venta venta) {
-        return ResponseEntity.ok(ventaService.actualizar(id, venta));
-    }
-
-    // Eliminar un producto
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        ventaService.eliminar(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

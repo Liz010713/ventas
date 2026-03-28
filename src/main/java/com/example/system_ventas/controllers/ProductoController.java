@@ -1,63 +1,47 @@
+// Archivo: src/main/java/com/example/system_ventas/controllers/ProductoController.java
 package com.example.system_ventas.controllers;
 
 import com.example.system_ventas.models.Producto;
-import com.example.system_ventas.services.IProductoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.system_ventas.services.ProductoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-/**
- * El Controlador es el punto de entrada de las peticiones HTTP.
- * 
- * @RestController indica que esta clase manejará peticiones REST (JSON).
- *                 @RequestMapping("/api/productos") define la ruta base.
- */
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
 
-    @Autowired
-    private IProductoService productoService;
+    private final ProductoService service;
 
-    // Obtener todos los productos
+    public ProductoController(ProductoService service) {
+        this.service = service;
+    }
+
     @GetMapping
-    public List<Producto> listar() {
-        return productoService.listarTodos();
+    public ResponseEntity<List<Producto>> getAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // Obtener un producto por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<Producto> buscar(@PathVariable Long id) {
-        return productoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Producto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // Crear un nuevo producto
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Producto crear(@RequestBody Producto producto) {
-        return productoService.guardar(producto);
+    public ResponseEntity<Producto> create(@Valid @RequestBody Producto producto) {
+        return new ResponseEntity<>(service.save(producto), HttpStatus.CREATED);
     }
 
-    // Actualizar un producto
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizar(@PathVariable Long id, @RequestBody Producto producto) {
-        Producto productoActualizado = productoService.actualizar(id, producto);
-        if (productoActualizado != null) {
-            return ResponseEntity.ok(productoActualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Producto> update(@PathVariable Long id, @Valid @RequestBody Producto producto) {
+        return ResponseEntity.ok(service.update(id, producto));
     }
 
-    // Eliminar un producto
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        productoService.eliminar(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

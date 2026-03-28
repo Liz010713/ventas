@@ -1,6 +1,8 @@
 package com.example.system_ventas.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "productos")
@@ -10,11 +12,13 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre es obligatorio")
     @Column(nullable = false)
     private String nombre;
 
     private String descripcion;
 
+    @NotNull(message = "El precio es obligatorio")
     @Column(nullable = false)
     private Double precio;
 
@@ -26,12 +30,13 @@ public class Producto {
     @JoinColumn(name = "proveedor_id")
     private Proveedor proveedor;
 
+    @NotNull(message = "El stock es obligatorio")
     private Integer stock;
 
     public Producto() {
     }
 
-    // Getters y Setters
+    // ... Conserve todos sus Getters y Setters originales de Producto aquí ...
     public Long getId() {
         return id;
     }

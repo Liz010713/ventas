@@ -1,55 +1,46 @@
+// Archivo: src/main/java/com/example/system_ventas/controllers/VendedorController.java
 package com.example.system_ventas.controllers;
 
 import com.example.system_ventas.models.Vendedor;
-import com.example.system_ventas.services.IVendedorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.system_ventas.services.VendedorService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-/**
- * El Controlador es el punto de entrada de las peticiones HTTP.
- * 
- * @RestController indica que esta clase manejará peticiones REST (JSON).
- *                 @RequestMapping("/api/productos") define la ruta base.
- */
 @RestController
 @RequestMapping("/api/vendedores")
 public class VendedorController {
 
-    @Autowired
-    private IVendedorService vendedorService;
+    private final VendedorService service;
 
-    // Obtener todos los vendedores
+    public VendedorController(VendedorService service) {
+        this.service = service;
+    }
+
     @GetMapping
-    public List<Vendedor> listar() {
-        return vendedorService.listarTodos();
+    public ResponseEntity<List<Vendedor>> getAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // Obtener un vendedor por su ID
     @GetMapping("/{id}")
-    public Vendedor buscar(@PathVariable Long id) {
-        return vendedorService.buscarPorId(id).get();
+    public ResponseEntity<Vendedor> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // Crear un nuevo vendedor
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Vendedor crear(@RequestBody Vendedor vendedor) {
-        return vendedorService.guardar(vendedor);
+    public ResponseEntity<Vendedor> create(@RequestBody Vendedor vendedor) {
+        return new ResponseEntity<>(service.save(vendedor), HttpStatus.CREATED);
     }
 
-    // Actualizar un vendedor
     @PutMapping("/{id}")
-    public Vendedor actualizar(@PathVariable Long id, @RequestBody Vendedor vendedor) {
-        return vendedorService.actualizar(id, vendedor);
+    public ResponseEntity<Vendedor> update(@PathVariable Long id, @RequestBody Vendedor vendedor) {
+        return ResponseEntity.ok(service.update(id, vendedor));
     }
 
-    // Eliminar un vendedor
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Long id) {
-        vendedorService.eliminar(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
